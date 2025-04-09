@@ -189,3 +189,5 @@ if __name__ == "__main__":
         print(f"Embedding for '{node_name}':\n{model.wv(node_name.lower())}")
     else:
         print(f"Node '{node_name}' not found in vocabulary.")
+
+        # COnfig GIt
