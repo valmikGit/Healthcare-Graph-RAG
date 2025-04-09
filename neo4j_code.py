@@ -2,10 +2,12 @@ from transformers import AutoTokenizer, AutoModelForTokenClassification, pipelin
 from neo4j import GraphDatabase
 import pandas as pd
 
-# Load pretrained NER pipeline
-model_name = "d4data/biomedical-ner-all"
+# Load model and tokenizer
+model_name = "Helios9/BioMed_NER"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForTokenClassification.from_pretrained(model_name)
+
+# NER pipeline
 ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, grouped_entities=False)
 
 # Neo4j credentials
