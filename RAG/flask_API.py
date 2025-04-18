@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import numpy as np
 import torch
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
@@ -168,6 +169,7 @@ class BiomedicalQA:
 #      Flask App
 # ======================
 app = Flask(__name__)
+CORS(app)  # ⬅️ Enable CORS for all routes
 ner = BiomedicalNER()
 node_embeddings = NodeEmbeddings(EMBEDDING_MODEL_PATH)
 neo4j_conn = Neo4jConnector(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
