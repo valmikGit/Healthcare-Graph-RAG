@@ -19,7 +19,7 @@ class CustomWord2Vec:
     def wv(self, word):
         return self.W1[self.word2idx[word]].cpu().numpy()
 
-model_path = "RAG/node2vec_model.pt"
+model_path = "RAG/node2vec_model_2.pt"
 
 # Load from saved .pt
 model = None
@@ -28,7 +28,7 @@ with torch.serialization.safe_globals([CustomWord2Vec]):
 word2vec = CustomWord2Vec(model.vocab, model.W1, model.word2idx, model.idx2word)
 
 # === Step 1: Load the CSV ===
-df = pd.read_csv("RAG/graph_db_with_embeddings.csv")
+df = pd.read_csv("RAG/graph_db_with_embeddings_2.csv")
 
 # Separate nodes and edges
 node_df = df.iloc[:33302]

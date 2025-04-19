@@ -8,7 +8,7 @@ NEO4J_USER = "neo4j"
 NEO4J_PASSWORD = "valmik_neo4j"
 
 # === Load CSV ===
-csv_path = "RAG\graph_db_with_embeddings.csv"
+csv_path = "RAG\graph_db_with_embeddings_2.csv"
 df = pd.read_csv(csv_path, low_memory=False)
 
 # Drop rows that are not nodes (after row 33302)
