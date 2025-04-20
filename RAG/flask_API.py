@@ -178,6 +178,12 @@ def ask_question():
     user_query = data.get("question", "").strip()
     qa_model = data.get("qa_model", None)
 
+    if qa_model == None:
+        response = {
+            "message": f"qa_model is {qa_model}"
+        }
+        return jsonify(response)
+
     ner = BiomedicalNER()
     node_embeddings = NodeEmbeddings(EMBEDDING_MODEL_PATH)
     neo4j_conn = Neo4jConnector(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
