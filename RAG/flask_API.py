@@ -11,7 +11,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 #      Configuration
 # ======================
 NER_MODEL_NAME = "Helios9/BioMed_NER"
-QA_MODEL_NAME = "deepset/bert-base-cased-squad2"
+QA_MODEL_NAME_BERT = "deepset/bert-base-cased-squad2"
+QA_MODEL_NAME_GPT_2 = "gpt2"
 NEO4J_URI = "bolt://localhost:7687"
 NEO4J_USER = "neo4j"
 NEO4J_PASSWORD = "valmik_neo4j"
@@ -124,7 +125,7 @@ class Neo4jConnector:
 #       QA Component
 # ======================
 class BiomedicalQA:
-    def __init__(self):
+    def __init__(self, QA_MODEL_NAME):
         self.qa_tokenizer = QATokenizer.from_pretrained(QA_MODEL_NAME)
         self.qa_model = AutoModelForQuestionAnswering.from_pretrained(QA_MODEL_NAME)
         
@@ -170,15 +171,22 @@ class BiomedicalQA:
 # ======================
 app = Flask(__name__)
 CORS(app)  # ⬅️ Enable CORS for all routes
-ner = BiomedicalNER()
-node_embeddings = NodeEmbeddings(EMBEDDING_MODEL_PATH)
-neo4j_conn = Neo4jConnector(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
-qa = BiomedicalQA()
 
 @app.route("/ask", methods=["POST"])
 def ask_question():
     data = request.get_json()
     user_query = data.get("question", "").strip()
+    qa_model = data.get("qa_model", None)
+
+    ner = BiomedicalNER()
+    node_embeddings = NodeEmbeddings(EMBEDDING_MODEL_PATH)
+    neo4j_conn = Neo4jConnector(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
+    qa = None
+    if qa_model == 0:
+        qa = BiomedicalQA(QA_MODEL_NAME=QA_MODEL_NAME_BERT)
+    elif qa_model == 1:
+        qa = BiomedicalQA(QA_MODEL_NAME=QA_MODEL_NAME_GPT_2)
+    
     if not user_query:
         return jsonify({"error": "Empty query"}), 400
 
