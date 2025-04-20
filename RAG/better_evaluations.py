@@ -106,17 +106,17 @@ walks = {node: generate_walk(G, node, length=15) for node in G.nodes()}
 all_pos_means = []
 all_neg_means = []
 
-for i in range(10):
-    print(f"\n🔁 Iteration {i+1}:")
+for i in range(20):
+    print(f"\nIteration {i+1}:")
 
-    pos_pairs = generate_positive_pairs(edge_df, id_to_name, k=10)
-    neg_pairs = generate_negative_pairs(G, walks, id_to_name, k=10)
+    pos_pairs = generate_positive_pairs(edge_df, id_to_name, k=100)
+    neg_pairs = generate_negative_pairs(G, walks, id_to_name, k=100)
 
-    print("✅ Positive Pairs:")
+    print("Positive Pairs:")
     for a, b in pos_pairs:
         print(f"{a} <-> {b}")
     
-    print("❌ Negative Pairs:")
+    print("Negative Pairs:")
     for a, b in neg_pairs:
         print(f"{a} !-> {b}")
 
@@ -137,7 +137,7 @@ for i in range(10):
     print(f"Mean Cosine Similarity (Negative): {neg_mean:.4f}")
 
 # === Final Results ===
-print("\n📊 Final Results over 10 Iterations:")
+print("\nFinal Results over 20 Iterations:")
 print("Average Cosine Similarity (Positive):", np.mean(all_pos_means))
 print("Average Cosine Similarity (Negative):", np.mean(all_neg_means))
 
