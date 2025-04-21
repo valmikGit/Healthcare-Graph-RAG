@@ -211,7 +211,7 @@ if __name__ == "__main__":
     print(f"Loaded graph with {len(G.nodes())} nodes and {len(G.edges())} edges.")
 
     walks = generate_walks(G, num_walks=10, walk_length=20)
-    model = train_node2vec_embeddings(walks, vector_size=128, epochs=3)
+    model = train_node2vec_embeddings(walks, vector_size=128, epochs=5)
 
     torch.save(model, MODEL_SAVE_PATH)
     print(f"Model saved to {MODEL_SAVE_PATH}")
