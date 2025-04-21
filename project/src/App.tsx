@@ -8,23 +8,24 @@ import { useTheme } from './hooks/useTheme';
 import { askQuestion } from './services/apiService';
 
 function App() {
-  const [questionHistory, setQuestionHistory] = useState<string[]>([]);
   const [currentResponse, setCurrentResponse] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { isDarkMode, toggleTheme } = useTheme();
 
-  const handleQuestionSubmit = async (question: string) => {
+  const [questionHistory, setQuestionHistory] = useState<{ question: string; model: number }[]>([]);
+
+  const handleQuestionSubmit = async (question: string, qaModel: number) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch("http://127.0.0.1:5000/ask", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, qa_model: qaModel }),
       });
 
       if (!response.ok) {
@@ -32,12 +33,11 @@ function App() {
       }
 
       const data = await response.json();
-      console.log(data);
       setCurrentResponse(data.answer);
-      
-      // Add to history if not already present
-      if (!questionHistory.includes(question)) {
-        setQuestionHistory(prev => [question, ...prev].slice(0, 5));
+
+      const alreadyExists = questionHistory.some(q => q.question === question && q.model === qaModel);
+      if (!alreadyExists) {
+        setQuestionHistory(prev => [{ question, model: qaModel }, ...prev].slice(0, 5));
       }
     } catch (err) {
       setError('Sorry, there was an error processing your question. Please try again.');
@@ -47,9 +47,10 @@ function App() {
     }
   };
 
-  const handleSelectFromHistory = (question: string) => {
-    handleQuestionSubmit(question);
+  const handleSelectFromHistory = (question: string, model: number) => {
+    handleQuestionSubmit(question, model);
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
