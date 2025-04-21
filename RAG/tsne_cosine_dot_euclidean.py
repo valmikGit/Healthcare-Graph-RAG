@@ -133,7 +133,7 @@ for i in range(20):
     print(f"→ Neg: Cos={all_neg_cos[-1]:.4f}, Euc={all_neg_euc[-1]:.4f}, Dot={all_neg_dot[-1]:.4f}")
 
 # === Final Results ===
-print("\n📊 Final Averages (over 20 iterations):")
+print("\nFinal Averages (over 20 iterations):")
 print(f"Cosine  → Pos: {np.mean(all_pos_cos):.4f} | Neg: {np.mean(all_neg_cos):.4f}")
 print(f"Euclid  → Pos: {np.mean(all_pos_euc):.4f} | Neg: {np.mean(all_neg_euc):.4f}")
 print(f"DotProd → Pos: {np.mean(all_pos_dot):.4f} | Neg: {np.mean(all_neg_dot):.4f}")
