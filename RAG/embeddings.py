@@ -83,7 +83,7 @@ def generate_walks(graph, num_walks, walk_length, p=1.0, q=1.0):
     nodes = list(graph.nodes())
     total = num_walks * len(nodes)
     start_time = time.time()
-    print(f"\n🚶 Generating {total} walks...")
+    print(f"\n Generating {total} walks...")
 
     for i in range(num_walks):
         random.shuffle(nodes)
@@ -94,7 +94,7 @@ def generate_walks(graph, num_walks, walk_length, p=1.0, q=1.0):
                 elapsed = time.time() - start_time
                 print(f"[{count}/{total} {format_time(elapsed)}]")
 
-    print(f"✅ Done generating walks in {format_time(time.time() - start_time)}")
+    print(f" Done generating walks in {format_time(time.time() - start_time)}")
     return walks
 
 # === GPU Word2Vec Training ===
@@ -167,7 +167,7 @@ def train_node2vec_embeddings(walks, vector_size=128, window=5, min_count=1, epo
         W1[center_idx] -= learning_rate * dW1
 
     for epoch in range(epochs):
-        print(f"\n🧠 Epoch {epoch + 1}/{epochs} starting...")
+        print(f"\n Epoch {epoch + 1}/{epochs} starting...")
         start_time = time.time()
         indices = torch.randperm(len(training_data), device=device)
         training_data = training_data[indices]
@@ -184,7 +184,7 @@ def train_node2vec_embeddings(walks, vector_size=128, window=5, min_count=1, epo
                 print(f"[{i+1}/{total} {format_time(elapsed)}, Epoch {epoch + 1}/{epochs}]")
 
         avg_loss = loss.item() / total
-        print(f"✅ Epoch {epoch + 1} completed in {format_time(time.time() - start_time)} | Avg Loss: {avg_loss:.4f}")
+        print(f"Epoch {epoch + 1} completed in {format_time(time.time() - start_time)} | Avg Loss: {avg_loss:.4f}")
 
     return CustomWord2Vec(vocab, W1, word2idx, idx2word)
 
@@ -218,4 +218,4 @@ if __name__ == "__main__":
 
     original_df = pd.read_csv(CSV_PATH)
     save_embeddings_to_csv(original_df, nodes_df, model, id_to_name)
-    print("✅ All done!")
+    print("All done!")

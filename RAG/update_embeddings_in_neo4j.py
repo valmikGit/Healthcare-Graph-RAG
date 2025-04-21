@@ -50,4 +50,4 @@ with driver.session() as session:
             print(f"Failed to update node {name} [{label}]: {e}")
 
 driver.close()
-print("✅ All embeddings updated.")
+print("All embeddings updated.")

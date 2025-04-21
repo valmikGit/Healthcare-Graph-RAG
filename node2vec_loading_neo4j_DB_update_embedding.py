@@ -141,21 +141,21 @@ def save_embeddings_to_neo4j(uri, user, password, model):
                 SET n.vector_embedding = $embedding
             """, name=word, embedding=emb)
     driver.close()
-    print("✅ Embeddings saved to Neo4j.")
+    print("Embeddings saved to Neo4j.")
 
 # === Step 6: Main Execution ===
 if __name__ == "__main__":
     print("🔗 Loading graph from Neo4j...")
     G = load_graph_from_neo4j(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
-    print(f"✅ Loaded graph with {len(G.nodes())} nodes and {len(G.edges())} edges.")
+    print(f" Loaded graph with {len(G.nodes())} nodes and {len(G.edges())} edges.")
 
-    print("🚶 Generating walks...")
+    print(" Generating walks...")
     walks = generate_walks(G, num_walks=20, walk_length=30)
 
-    print("🧠 Training embeddings from scratch...")
+    print(" Training embeddings from scratch...")
     model = train_node2vec_embeddings(walks, vector_size=128, epochs=50)
 
-    print("📤 Uploading embeddings to Neo4j...")
+    print(" Uploading embeddings to Neo4j...")
     save_embeddings_to_neo4j(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD, model)
 
-    print("🎉 Done!")
+    print(" Done!")
