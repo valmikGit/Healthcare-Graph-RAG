@@ -98,11 +98,11 @@ while len(negative_pairs) < 10:
 negative_pairs = list(negative_pairs)
 
 # === Step 5: Display or Save ===
-print("✅ Positive Pairs:")
+print(" Positive Pairs:")
 for a, b in positive_pairs:
     print(f"{a} <-> {b}")
 
-print("\n❌ Negative Pairs:")
+print("\n Negative Pairs:")
 for a, b in negative_pairs:
     print(f"{a} !-> {b}")
 
@@ -129,7 +129,7 @@ print("Average similarity of unrelated pairs: ", np.mean(negative_scores))
 def plot_tsne(word2vec, words):
     # Filter words with embeddings
     valid_words = [word for word in words if word in word2vec.word2idx]
-    vecs = np.array([word2vec.wv(word) for word in valid_words])  # ✅ Convert to numpy array
+    vecs = np.array([word2vec.wv(word) for word in valid_words])  # Convert to numpy array
 
     if len(vecs) < 2:
         print("Not enough valid words for t-SNE.")

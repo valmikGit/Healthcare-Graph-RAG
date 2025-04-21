@@ -26,12 +26,12 @@
 # if not os.path.exists(MODEL_PATH):
 #     raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
 
-# print("📦 Loading model...")
+# print(" Loading model...")
 # model = CustomWord2Vec.load(MODEL_PATH)
-# print(f"✅ Model loaded with {len(model.vocab)} nodes.")
+# print(f" Model loaded with {len(model.vocab)} nodes.")
 
 # # === Extract embeddings and save to CSV ===
-# print("💾 Saving embeddings to CSV...")
+# print(" Saving embeddings to CSV...")
 
 # data = []
 # for word in model.vocab:
@@ -44,7 +44,7 @@
 
 # # Save
 # embedding_df.to_csv(OUTPUT_CSV, index=False)
-# print(f"✅ Embeddings saved to {OUTPUT_CSV}")
+# print(f"Embeddings saved to {OUTPUT_CSV}")
 
 
 import torch
@@ -73,13 +73,13 @@ class CustomWord2Vec:
         return torch.load(path, map_location='cpu', weights_only=False)
 
 # === Load the model ===
-print("📦 Loading model...")
+print("Loading model...")
 model = CustomWord2Vec.load(MODEL_PATH)
-print(f"✅ Model loaded with {len(model.vocab)} nodes.")
+print(f"Model loaded with {len(model.vocab)} nodes.")
 
 # === Load graph_db.csv ===
 df = pd.read_csv(CSV_PATH, low_memory=False)
-print(f"📊 Loaded CSV with shape: {df.shape}")
+print(f"Loaded CSV with shape: {df.shape}")
 
 # === Embed nodes where possible ===
 def get_embedding(row):
@@ -91,9 +91,9 @@ def get_embedding(row):
             return model.wv(key).tolist()
     return None
 
-print("🧠 Adding embeddings to rows...")
+print("Adding embeddings to rows...")
 df['vector_embedding'] = df.apply(get_embedding, axis=1)
 
 # === Save to CSV ===
 df.to_csv(OUTPUT_CSV, index=False)
-print(f"✅ Enriched CSV saved to: {OUTPUT_CSV}")
+print(f"Enriched CSV saved to: {OUTPUT_CSV}")
