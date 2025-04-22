@@ -20,3 +20,7 @@ For Linux:
 ```bash
 source nlpenv\bin\activate
 ```
+For installing the dependencies:
+```bash
+pip install -r requirements.txt
+```
