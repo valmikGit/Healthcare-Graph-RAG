@@ -1,18 +1,9 @@
 # Healthcare-Graph-RAG
-Course project in Natural Language Processing
 
+To run the Neo4j Docker image and use our neo4j/data as the /data of the Docker container, run this command:
 ```bash
-git clone https://github.com/doccano/doccano.git
-```
-```bash
-cd doccano/
- ```
- ```bash
-cd docker/
-```
-```bash
-ADMIN_USERNAME=valmik_admin_username ADMIN_PASSWORD=valmik_admin_password ADMIN_EMAIL=valmik0000000@gmail.com POSTGRES_USER=valmik_postgres_username POSTGRES_PASSWORD=valmik_postgres_password POSTGRES_DB=valmik_postgres_db RABBITMQ_DEFAULT_USER=valmik_rabbit_mq_username RABBITMQ_DEFAULT_PASS=valmik_rabbit_mq_password docker compose -f docker-compose.prod.yml up --build
-```
-```bash
-docker compose -f docker-compose.prod.yml down
+docker run --name neo4j -d -p 7474:7474 -p 7687:7687 \
+-v /home/ketan/neo4j/neo4j/data:/data \
+-v /home/ketan/neo4j/neo4j/logs:/logs \
+-e NEO4J_AUTH=none neo4j
 ```
