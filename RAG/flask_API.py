@@ -245,7 +245,8 @@ def ask_question():
 
         unique_chunks = list(set(context_chunks))
         response["retrieved_sentences"] = unique_chunks
-        final_context = " ".join(sorted(unique_chunks, key=len))[:3000]
+        context_sentences = [f"{src} {rel} {tgt}" for (src, rel, tgt) in unique_chunks]
+        final_context = " ".join(sorted(context_sentences, key=len))[:3000]
         response["context"] = final_context
         response["answer"] = qa.answer_question(final_context, user_query)
 

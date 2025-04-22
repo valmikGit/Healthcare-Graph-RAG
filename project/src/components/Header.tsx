@@ -7,7 +7,7 @@ const Header: React.FC = () => {
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <BrainCircuit className="h-8 w-8" />
-          <h1 className="text-2xl font-bold tracking-tight">InsightAI</h1>
+          <h1 className="text-2xl font-bold tracking-tight">HealthGuru</h1>
         </div>
       </div>
     </header>
