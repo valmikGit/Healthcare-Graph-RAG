@@ -7,3 +7,16 @@ docker run --name neo4j -d -p 7474:7474 -p 7687:7687 \
 -v /home/ketan/neo4j/neo4j/logs:/logs \
 -e NEO4J_AUTH=none neo4j
 ```
+
+To install the required dependencies you can run the following commands:
+```bash
+python -m venv nlpenv
+```
+For Windows:
+```bash
+nlpenv\Scripts\activate
+```
+For Linux:
+```bash
+source nlpenv\bin\activate
+```
