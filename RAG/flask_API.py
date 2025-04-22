@@ -122,7 +122,8 @@ class Neo4jConnector:
                 WHERE toLower(a.name) = toLower($name)
                 RETURN a.name AS src, type(r) AS rel, b.name AS tgt
             """, name=node_name)
-            return [f"{record['src']} {record['rel'].replace('_',' ').lower()} {record['tgt']}".lower() for record in result]
+            return [(record["src"].lower(), record["rel"].replace("_", " ").lower(), record["tgt"].lower()) for record in result]
+
 
 # ======================
 #       QA Component
