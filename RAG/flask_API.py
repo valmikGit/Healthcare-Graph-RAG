@@ -4,6 +4,7 @@ import numpy as np
 import torch
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 from transformers import AutoModelForQuestionAnswering, AutoTokenizer as QATokenizer
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 from neo4j import GraphDatabase
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -16,8 +17,10 @@ QA_MODEL_NAME_GPT_2 = "gpt2"
 NEO4J_URI = "bolt://localhost:7687"
 NEO4J_USER = "neo4j"
 NEO4J_PASSWORD = "valmik_neo4j"
-EMBEDDING_MODEL_PATH = "node2vec_model.pt"
+EMBEDDING_MODEL_PATH = "node2vec_model_2.pt"
 MAX_CONTEXT_LENGTH = 512
+MAX_CONTEXT_LENGTH = 512
+MAX_GENERATION_LENGTH = 150
 
 # ======================
 #  Custom Word2Vec Class 
@@ -125,9 +128,9 @@ class Neo4jConnector:
 #       QA Component
 # ======================
 class BiomedicalQA:
-    def __init__(self, QA_MODEL_NAME):
-        self.qa_tokenizer = QATokenizer.from_pretrained(QA_MODEL_NAME)
-        self.qa_model = AutoModelForQuestionAnswering.from_pretrained(QA_MODEL_NAME)
+    def __init__(self):
+        self.qa_tokenizer = QATokenizer.from_pretrained(QA_MODEL_NAME_BERT)
+        self.qa_model = AutoModelForQuestionAnswering.from_pretrained(QA_MODEL_NAME_BERT)
         
     def answer_question(self, context, question):
         if not context.strip():
@@ -165,6 +168,30 @@ class BiomedicalQA:
             return answer if answer else "No specific answer found"
         except Exception as e:
             return f"Error processing answer: {str(e)}"
+        
+class BiomedicalQA_GPT2:
+    def __init__(self):
+        self.tokenizer = GPT2Tokenizer.from_pretrained(QA_MODEL_NAME_GPT_2)
+        self.model = GPT2LMHeadModel.from_pretrained(QA_MODEL_NAME_GPT_2)
+        self.model.eval()
+    
+    def answer_question(self, context, question):
+        if not context.strip():
+            return "No relevant information found in the knowledge base"
+
+        prompt = f"Context: {context}\nQuestion: {question}\nAnswer:"
+        inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=MAX_CONTEXT_LENGTH)
+        with torch.no_grad():
+            outputs = self.model.generate(
+                **inputs,
+                max_length=inputs['input_ids'].shape[1] + MAX_GENERATION_LENGTH,
+                pad_token_id=self.tokenizer.eos_token_id,
+                do_sample=True,
+                top_k=50,
+                top_p=0.95
+            )
+        answer = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        return answer.split("Answer:")[-1].strip()
 
 # ======================
 #      Flask App
@@ -189,42 +216,84 @@ def ask_question():
     neo4j_conn = Neo4jConnector(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
     qa = None
     if qa_model == 0:
-        qa = BiomedicalQA(QA_MODEL_NAME=QA_MODEL_NAME_BERT)
+        qa = BiomedicalQA()
+        if not user_query:
+            return jsonify({"error": "Empty query"}), 400
+
+        response = {
+            "entities": [],
+            "embeddings": {},
+            "retrieved_sentences": [],
+            "context": "",
+            "answer": ""
+        }
+
+        entities = ner.extract_entities(user_query)
+        response["entities"] = entities
+
+        context_chunks = []
+        for entity in entities:
+            emb = node_embeddings.get_embedding(entity)
+            response["embeddings"][entity] = emb
+            if emb is None:
+                continue
+            similar_nodes = node_embeddings.top_similar_nodes(emb)
+            for node_name, _ in similar_nodes:
+                relationships = neo4j_conn.get_relationships(node_name)
+                context_chunks.extend(relationships)
+
+        unique_chunks = list(set(context_chunks))
+        response["retrieved_sentences"] = unique_chunks
+        final_context = " ".join(sorted(unique_chunks, key=len))[:3000]
+        response["context"] = final_context
+        response["answer"] = qa.answer_question(final_context, user_query)
+
+        return jsonify(response)
+
     elif qa_model == 1:
-        qa = BiomedicalQA(QA_MODEL_NAME=QA_MODEL_NAME_GPT_2)
-    
-    if not user_query:
-        return jsonify({"error": "Empty query"}), 400
+        qa = BiomedicalQA_GPT2()
 
-    response = {
-        "entities": [],
-        "embeddings": {},
-        "retrieved_sentences": [],
-        "context": "",
-        "answer": ""
-    }
+        if not user_query:
+            return jsonify({"error": "Empty query"}), 400
 
-    entities = ner.extract_entities(user_query)
-    response["entities"] = entities
+        response = {
+            "entities": [],
+            "embeddings": {},
+            "retrieved_sentences": [],
+            "context": "",
+            "answer": ""
+        }
 
-    context_chunks = []
-    for entity in entities:
-        emb = node_embeddings.get_embedding(entity)
-        response["embeddings"][entity] = emb
-        if emb is None:
-            continue
-        similar_nodes = node_embeddings.top_similar_nodes(emb)
-        for node_name, _ in similar_nodes:
-            relationships = neo4j_conn.get_relationships(node_name)
-            context_chunks.extend(relationships)
+        ner = BiomedicalNER()
+        entities = ner.extract_entities(user_query)
+        response["entities"] = entities
+        
+        node_embeddings = NodeEmbeddings(EMBEDDING_MODEL_PATH)
+        neo4j_conn = Neo4jConnector(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
+        
+        context_chunks = []
+        for entity in entities:
+            emb = node_embeddings.get_embedding(entity)
+            response["embeddings"][entity] = emb
+            if emb is None:
+                continue
+            similar_nodes = node_embeddings.top_similar_nodes(emb)
+            for node_name, _ in similar_nodes:
+                relationships = neo4j_conn.get_relationships(node_name)
+                for src, rel, tgt in relationships:
+                    rel_clean = rel.replace('_', ' ').lower()
+                    context_chunks.append(f"{src} {rel_clean} {tgt}".lower())
+        
+        unique_chunks = list(set(context_chunks))
+        response["retrieved_sentences"] = unique_chunks
+        if not unique_chunks:
+            return "No relevant medical information found in the knowledge base"
+            
+        context = " ".join(sorted(unique_chunks, key=lambda x: len(x)))
+        response["context"] = context
+        response["answer"] = qa.answer_question(context, user_query)
 
-    unique_chunks = list(set(context_chunks))
-    response["retrieved_sentences"] = unique_chunks
-    final_context = " ".join(sorted(unique_chunks, key=len))[:3000]
-    response["context"] = final_context
-    response["answer"] = qa.answer_question(final_context, user_query)
-
-    return jsonify(response)
+        return jsonify(response)
 
 if __name__ == "__main__":
     app.run(debug=True)
