@@ -198,7 +198,7 @@ class BiomedicalQA_GPT2:
 #      Flask App
 # ======================
 app = Flask(__name__)
-CORS(app)  # ⬅️ Enable CORS for all routes
+CORS(app)
 
 @app.route("/ask", methods=["POST"])
 def ask_question():
