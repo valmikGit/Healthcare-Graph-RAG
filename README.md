@@ -1,6 +1,6 @@
 # Healthcare-Graph-RAG
 
-To run the Neo4j Docker image and use our neo4j/data as the /data of the Docker container, run this command:
+To run the Neo4j Docker image and use our neo4j/data as the /data of the Docker container, run this command (obviously you will have to replace the given system paths with your system's path, for attaching the Docker volume):
 ```bash
 docker run --name neo4j -d -p 7474:7474 -p 7687:7687 \
 -v /home/ketan/neo4j/neo4j/data:/data \
